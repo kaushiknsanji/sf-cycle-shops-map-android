@@ -1,0 +1,52 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    // Map of plugin and dependency versions
+    ext.versions = [:]
+
+    // Plugin versions
+    versions.kotlin_plugin = '1.6.10'
+    versions.gradle_plugin = '7.1.1'
+
+    // Sdk and Tools
+    versions.min_sdk = 21
+    versions.target_sdk = 31
+    versions.compile_sdk = 31
+
+    // AppCompat
+    versions.appcompat = '1.4.1'
+
+    // Core
+    versions.core = '1.7.0'
+
+    // JSON de/serializer using Gson
+    versions.gson = '2.8.7'
+
+    // Maps SDK
+    versions.maps = '18.0.2'
+
+    // Testing
+    versions.junit = '4.13.2'
+
+    repositories {
+        google()
+        mavenCentral()
+        
+    }
+
+    dependencies {
+        classpath "com.android.tools.build:gradle:$versions.gradle_plugin"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin_plugin"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

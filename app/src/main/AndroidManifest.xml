@@ -25,7 +25,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!-- Add meta-data tag here -->
+        <!-- Meta-data tag for Maps SDK API information -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${GOOGLE_MAPS_API_KEY}" />
 
         <activity
             android:name="com.google.codelabs.myfirstmap.MainActivity"

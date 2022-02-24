@@ -14,7 +14,20 @@
 
 package com.google.codelabs.myfirstmap
 
+import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.google.codelabs.myfirstmap.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
+
+    /**
+     * Perform initialization of all fragments.
+     */
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+    }
 }

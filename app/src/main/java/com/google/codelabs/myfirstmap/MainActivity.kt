@@ -16,11 +16,21 @@ package com.google.codelabs.myfirstmap
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.codelabs.myfirstmap.databinding.ActivityMainBinding
+import com.google.codelabs.myfirstmap.place.Place
+import com.google.codelabs.myfirstmap.place.PlacesReader
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
+    // Get list of Places from the file "places.json"
+    private val places: List<Place> by lazy {
+        PlacesReader(this).read()
+    }
 
     /**
      * Perform initialization of all fragments.
@@ -29,5 +39,27 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Find the Map Fragment
+        val mapFragment =
+            supportFragmentManager.findFragmentById(R.id.map_fragment) as SupportMapFragment
+        // Obtain the GoogleMap instance from the fragment
+        mapFragment.getMapAsync { googleMap: GoogleMap ->
+            // Represent the Places as Markers on the Map
+            addMarkers(googleMap)
+        }
+    }
+
+    /**
+     * Adds Marker representations of the Places on the provided [googleMap].
+     */
+    private fun addMarkers(googleMap: GoogleMap) {
+        places.forEach { place: Place ->
+            googleMap.addMarker(
+                MarkerOptions()
+                    .title(place.name)
+                    .position(place.latLng)
+            )
+        }
     }
 }

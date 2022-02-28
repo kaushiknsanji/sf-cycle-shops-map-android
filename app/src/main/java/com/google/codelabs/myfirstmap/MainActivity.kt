@@ -16,8 +16,10 @@ package com.google.codelabs.myfirstmap
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.codelabs.myfirstmap.databinding.ActivityMainBinding
 import com.google.codelabs.myfirstmap.place.Place
@@ -30,6 +32,15 @@ class MainActivity : AppCompatActivity() {
     // Get list of Places from the file "places.json"
     private val places: List<Place> by lazy {
         PlacesReader(this).read()
+    }
+
+    // Bicycle Icon to use for the Marker
+    private val bicycleIcon: BitmapDescriptor by lazy {
+        BitmapHelper.vectorToBitmapDescriptor(
+            this,
+            R.drawable.ic_directions_bike_black_24dp,
+            ContextCompat.getColor(this, R.color.colorPrimary)
+        )
     }
 
     /**
@@ -45,8 +56,12 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.findFragmentById(R.id.map_fragment) as SupportMapFragment
         // Obtain the GoogleMap instance from the fragment
         mapFragment.getMapAsync { googleMap: GoogleMap ->
-            // Represent the Places as Markers on the Map
-            addMarkers(googleMap)
+            with(googleMap) {
+                // Represent Places as Markers on the Map
+                addMarkers(this)
+                // Customize Marker's Info Window via its Adapter
+                setInfoWindowAdapter(MarkerInfoWindowAdapter(this@MainActivity))
+            }
         }
     }
 
@@ -59,7 +74,12 @@ class MainActivity : AppCompatActivity() {
                 MarkerOptions()
                     .title(place.name)
                     .position(place.latLng)
-            )
+                    .icon(bicycleIcon)
+            )?.also { marker ->
+                // Set Place information as part of the Tag property
+                // so that it can be referenced within MarkerInfoWindowAdapter
+                marker.tag = place
+            }
         }
     }
 }

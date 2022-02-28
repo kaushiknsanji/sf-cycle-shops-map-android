@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="marker_contents_padding">8dp</dimen>
+    <dimen name="text_marker_title_size">18sp</dimen>
+    <dimen name="text_marker_address_size">16sp</dimen>
+    <dimen name="text_marker_rating_size">16sp</dimen>
+</resources>

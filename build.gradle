@@ -26,6 +26,9 @@ buildscript {
     // Maps SDK
     versions.maps = '18.0.2'
 
+    // Utility library for Maps SDK
+    versions.maps_utils = '2.3.0'
+
     // Testing
     versions.junit = '4.13.2'
 

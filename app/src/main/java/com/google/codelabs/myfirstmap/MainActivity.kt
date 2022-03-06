@@ -16,14 +16,13 @@ package com.google.codelabs.myfirstmap
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.codelabs.myfirstmap.databinding.ActivityMainBinding
 import com.google.codelabs.myfirstmap.place.Place
+import com.google.codelabs.myfirstmap.place.PlaceRenderer
 import com.google.codelabs.myfirstmap.place.PlacesReader
+import com.google.maps.android.clustering.ClusterManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,15 +31,6 @@ class MainActivity : AppCompatActivity() {
     // Get list of Places from the file "places.json"
     private val places: List<Place> by lazy {
         PlacesReader(this).read()
-    }
-
-    // Bicycle Icon to use for the Marker
-    private val bicycleIcon: BitmapDescriptor by lazy {
-        BitmapHelper.vectorToBitmapDescriptor(
-            this,
-            R.drawable.ic_directions_bike_black_24dp,
-            ContextCompat.getColor(this, R.color.colorPrimary)
-        )
     }
 
     /**
@@ -57,29 +47,33 @@ class MainActivity : AppCompatActivity() {
         // Obtain the GoogleMap instance from the fragment
         mapFragment.getMapAsync { googleMap: GoogleMap ->
             with(googleMap) {
-                // Represent Places as Markers on the Map
-                addMarkers(this)
-                // Customize Marker's Info Window via its Adapter
-                setInfoWindowAdapter(MarkerInfoWindowAdapter(this@MainActivity))
+                // Represent Places as Markers on the Map with clustering support
+                addClusteredMarkers(this)
             }
         }
     }
 
     /**
-     * Adds Marker representations of the Places on the provided [googleMap].
+     * Adds Marker representations of the Places on the provided [googleMap] with clustering support.
      */
-    private fun addMarkers(googleMap: GoogleMap) {
-        places.forEach { place: Place ->
-            googleMap.addMarker(
-                MarkerOptions()
-                    .title(place.name)
-                    .position(place.latLng)
-                    .icon(bicycleIcon)
-            )?.also { marker ->
-                // Set Place information as part of the Tag property
-                // so that it can be referenced within MarkerInfoWindowAdapter
-                marker.tag = place
-            }
+    private fun addClusteredMarkers(googleMap: GoogleMap) {
+        // Create a Cluster Manager
+        val clusterManager = ClusterManager<Place>(this, googleMap)
+
+        with(clusterManager) {
+            // Set custom renderer
+            renderer = PlaceRenderer(this@MainActivity, googleMap, this)
+
+            // Set custom Info Window
+            markerCollection.setInfoWindowAdapter(MarkerInfoWindowAdapter(this@MainActivity))
+
+            // Set OnCameraIdleListener to re-cluster based on user's pan and zoom actions on the map
+            googleMap.setOnCameraIdleListener(this)
+
+            // Feed the Markers and force cluster
+            addItems(places)
+            cluster()
         }
     }
+
 }

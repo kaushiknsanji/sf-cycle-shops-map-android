@@ -44,6 +44,9 @@ dependencies {
     // Maps SDK for Android
     implementation "com.google.android.gms:play-services-maps:$versions.maps"
 
+    // Utility library for Maps SDK
+    implementation "com.google.maps.android:android-maps-utils:$versions.maps_utils"
+
     // Local Unit Tests
     testImplementation "junit:junit:$versions.junit"
 }

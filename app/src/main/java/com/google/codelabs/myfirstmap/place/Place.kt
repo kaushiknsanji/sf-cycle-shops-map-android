@@ -15,10 +15,28 @@
 package com.google.codelabs.myfirstmap.place
 
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.clustering.ClusterItem
 
 data class Place(
     val name: String,
     val latLng: LatLng,
     val address: String,
     val rating: Float
-)
+) : ClusterItem {
+
+    /**
+     * The position of this marker. This must always return the same value.
+     */
+    override fun getPosition(): LatLng = latLng
+
+    /**
+     * The title of this marker.
+     */
+    override fun getTitle(): String = name
+
+    /**
+     * The description of this marker.
+     */
+    override fun getSnippet(): String = address
+
+}

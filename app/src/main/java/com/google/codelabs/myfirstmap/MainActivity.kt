@@ -16,8 +16,11 @@ package com.google.codelabs.myfirstmap
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.Circle
+import com.google.android.gms.maps.model.CircleOptions
 import com.google.codelabs.myfirstmap.databinding.ActivityMainBinding
 import com.google.codelabs.myfirstmap.place.Place
 import com.google.codelabs.myfirstmap.place.PlaceRenderer
@@ -32,6 +35,9 @@ class MainActivity : AppCompatActivity() {
     private val places: List<Place> by lazy {
         PlacesReader(this).read()
     }
+
+    // A Circle to show around a Marker when clicked
+    private var circle: Circle? = null
 
     /**
      * Perform initialization of all fragments.
@@ -73,7 +79,32 @@ class MainActivity : AppCompatActivity() {
             // Feed the Markers and force cluster
             addItems(places)
             cluster()
+
+            // Show a Circle on the ClusterItem clicked
+            setOnClusterItemClickListener { clusterItem: Place ->
+                addCircle(googleMap, clusterItem)
+                return@setOnClusterItemClickListener false
+            }
         }
+    }
+
+    /**
+     * Adds a [Circle] around the provided [clusterItem] on [googleMap].
+     */
+    private fun addCircle(googleMap: GoogleMap, clusterItem: Place) {
+        circle?.remove()
+        circle = googleMap.addCircle(
+            CircleOptions()
+                .center(clusterItem.latLng)
+                .radius(1000.0)
+                .fillColor(
+                    ContextCompat.getColor(
+                        this@MainActivity,
+                        R.color.colorPrimaryTranslucent
+                    )
+                )
+                .strokeColor(ContextCompat.getColor(this@MainActivity, R.color.colorPrimary))
+        )
     }
 
 }

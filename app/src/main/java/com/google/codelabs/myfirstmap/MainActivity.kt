@@ -17,10 +17,12 @@ package com.google.codelabs.myfirstmap
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.CircleOptions
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.codelabs.myfirstmap.databinding.ActivityMainBinding
 import com.google.codelabs.myfirstmap.place.Place
 import com.google.codelabs.myfirstmap.place.PlaceRenderer
@@ -53,6 +55,20 @@ class MainActivity : AppCompatActivity() {
         // Obtain the GoogleMap instance from the fragment
         mapFragment.getMapAsync { googleMap: GoogleMap ->
             with(googleMap) {
+                // Register the callback for receiving Map rendered event
+                setOnMapLoadedCallback {
+                    // When Map is fully rendered with all the tiles,
+                    // move the Camera position to display our Markers
+                    moveCamera(
+                        CameraUpdateFactory.newLatLngBounds(
+                            LatLngBounds.builder().apply {
+                                places.forEach { include(it.latLng) }
+                            }.build(),
+                            20
+                        )
+                    )
+                }
+
                 // Represent Places as Markers on the Map with clustering support
                 addClusteredMarkers(this)
             }
@@ -73,8 +89,26 @@ class MainActivity : AppCompatActivity() {
             // Set custom Info Window
             markerCollection.setInfoWindowAdapter(MarkerInfoWindowAdapter(this@MainActivity))
 
-            // Set OnCameraIdleListener to re-cluster based on user's pan and zoom actions on the map
-            googleMap.setOnCameraIdleListener(this)
+            // Register listener on Map to receive events of when Camera starts to move
+            googleMap.setOnCameraMoveStartedListener { reason: Int ->
+                if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+                    // When Camera move is initiated by a user gesture
+                    // Make all the Markers including that of clusters translucent
+                    markerCollection.markers.forEach { it.alpha = 0.3f }
+                    clusterMarkerCollection.markers.forEach { it.alpha = 0.3f }
+                }
+            }
+
+            // Register listener on Map to receive events of when Camera becomes idle
+            googleMap.setOnCameraIdleListener {
+                // Make all the Markers including that of clusters opaque
+                markerCollection.markers.forEach { it.alpha = 1.0f }
+                clusterMarkerCollection.markers.forEach { it.alpha = 1.0f }
+
+                // Delegate event to ClusterManager's callback in order to re-cluster based on
+                // user's pan and zoom actions on the map
+                clusterManager.onCameraIdle()
+            }
 
             // Feed the Markers and force cluster
             addItems(places)

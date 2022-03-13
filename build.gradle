@@ -20,6 +20,9 @@ buildscript {
     // Core
     versions.core = '1.7.0'
 
+    // Lifecycle
+    versions.lifecycle = '2.4.1'
+
     // JSON de/serializer using Gson
     versions.gson = '2.8.7'
 
@@ -28,6 +31,12 @@ buildscript {
 
     // Utility library for Maps SDK
     versions.maps_utils = '2.3.0'
+
+    // KTX for Maps SDK
+    versions.maps_ktx = '3.3.0'
+
+    // KTX for Utility library of Maps SDK
+    versions.maps_utils_ktx = '3.3.0'
 
     // Testing
     versions.junit = '4.13.2'

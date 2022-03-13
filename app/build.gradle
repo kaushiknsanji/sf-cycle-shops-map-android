@@ -47,6 +47,15 @@ dependencies {
     // Utility library for Maps SDK
     implementation "com.google.maps.android:android-maps-utils:$versions.maps_utils"
 
+    // KTX for Maps SDK
+    implementation "com.google.maps.android:maps-ktx:$versions.maps_ktx"
+
+    // KTX for Utility library of Maps SDK
+    implementation "com.google.maps.android:maps-utils-ktx:$versions.maps_utils_ktx"
+
+    // Lifecycles only (without ViewModel or LiveData)
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$versions.lifecycle"
+
     // Local Unit Tests
     testImplementation "junit:junit:$versions.junit"
 }

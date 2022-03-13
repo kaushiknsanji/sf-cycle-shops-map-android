@@ -17,17 +17,20 @@ package com.google.codelabs.myfirstmap
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.Circle
-import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.codelabs.myfirstmap.databinding.ActivityMainBinding
 import com.google.codelabs.myfirstmap.place.Place
 import com.google.codelabs.myfirstmap.place.PlaceRenderer
 import com.google.codelabs.myfirstmap.place.PlacesReader
 import com.google.maps.android.clustering.ClusterManager
+import com.google.maps.android.ktx.addCircle
+import com.google.maps.android.ktx.awaitMap
+import com.google.maps.android.ktx.awaitMapLoad
 
 class MainActivity : AppCompatActivity() {
 
@@ -52,22 +55,22 @@ class MainActivity : AppCompatActivity() {
         // Find the Map Fragment
         val mapFragment =
             supportFragmentManager.findFragmentById(R.id.map_fragment) as SupportMapFragment
-        // Obtain the GoogleMap instance from the fragment
-        mapFragment.getMapAsync { googleMap: GoogleMap ->
-            with(googleMap) {
-                // Register the callback for receiving Map rendered event
-                setOnMapLoadedCallback {
-                    // When Map is fully rendered with all the tiles,
-                    // move the Camera position to display our Markers
-                    moveCamera(
-                        CameraUpdateFactory.newLatLngBounds(
-                            LatLngBounds.builder().apply {
-                                places.forEach { include(it.latLng) }
-                            }.build(),
-                            20
-                        )
+
+        lifecycleScope.launchWhenCreated {
+            // Retrieve GoogleMap object
+            with(mapFragment.awaitMap()) {
+                // Wait till the map is rendered
+                awaitMapLoad()
+
+                // When the map is fully rendered, position the Camera to display our Markers
+                moveCamera(
+                    CameraUpdateFactory.newLatLngBounds(
+                        LatLngBounds.builder().apply {
+                            places.forEach { include(it.latLng) }
+                        }.build(),
+                        20
                     )
-                }
+                )
 
                 // Represent Places as Markers on the Map with clustering support
                 addClusteredMarkers(this)
@@ -127,18 +130,17 @@ class MainActivity : AppCompatActivity() {
      */
     private fun addCircle(googleMap: GoogleMap, clusterItem: Place) {
         circle?.remove()
-        circle = googleMap.addCircle(
-            CircleOptions()
-                .center(clusterItem.latLng)
-                .radius(1000.0)
-                .fillColor(
-                    ContextCompat.getColor(
-                        this@MainActivity,
-                        R.color.colorPrimaryTranslucent
-                    )
+        circle = googleMap.addCircle {
+            center(clusterItem.latLng)
+            radius(1000.0)
+            fillColor(
+                ContextCompat.getColor(
+                    this@MainActivity,
+                    R.color.colorPrimaryTranslucent
                 )
-                .strokeColor(ContextCompat.getColor(this@MainActivity, R.color.colorPrimary))
-        )
+            )
+            strokeColor(ContextCompat.getColor(this@MainActivity, R.color.colorPrimary))
+        }
     }
 
 }

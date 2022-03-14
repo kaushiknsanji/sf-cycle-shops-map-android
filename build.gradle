@@ -6,7 +6,7 @@ buildscript {
 
     // Plugin versions
     versions.kotlin_plugin = '1.6.10'
-    versions.gradle_plugin = '7.1.1'
+    versions.gradle_plugin = '7.1.2'
 
     // Sdk and Tools
     versions.min_sdk = 21
